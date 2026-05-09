@@ -1,10 +1,11 @@
-import { ArrowUpRight } from '@phosphor-icons/react';
+import { ArrowUpRight, CalendarBlank } from '@phosphor-icons/react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { type MouseEvent, useRef } from 'react';
+import { type MouseEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import DocumentationModal from '@/Components/DocumentationModal';
 import LazyImage from '@/Components/LazyImage';
 import Reveal from '@/Components/Reveal';
-import { pickTranslation } from '@/lib/utils';
+import { formatDateRange, pickTranslation } from '@/lib/utils';
 import type { Documentation, Locale } from '@/types';
 
 function TiltCard({
@@ -34,7 +35,7 @@ function TiltCard({
             ref={ref}
             onMouseMove={onMove}
             onMouseLeave={onLeave}
-            className={`tilt-3d transition-transform duration-300 ease-out ${className ?? ''}`}
+            className={`tilt-3d h-full transition-transform duration-300 ease-out ${className ?? ''}`}
             style={{ transformStyle: 'preserve-3d' }}
         >
             {children}
@@ -50,6 +51,7 @@ export default function Gallery({
     locale: Locale;
 }) {
     const { t } = useTranslation();
+    const [openItem, setOpenItem] = useState<Documentation | null>(null);
 
     return (
         <section id="work" className="relative mx-auto max-w-6xl px-6 py-20">
@@ -63,45 +65,58 @@ export default function Gallery({
                 </p>
             </Reveal>
 
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {documentations.map((d, i) => (
-                    <motion.article
-                        key={d.id}
-                        className="group"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-12% 0px' }}
-                        transition={{ delay: i * 0.06, duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
-                    >
-                        <TiltCard>
-                            <div className="overflow-hidden rounded-3xl bg-white/95 shadow-soft ring-1 ring-gold-100/70 transition-shadow duration-500 group-hover:shadow-cute">
-                                <div className="relative aspect-[4/3] overflow-hidden">
-                                    <LazyImage
-                                        src={d.image_url}
-                                        alt={pickTranslation(d.title, locale)}
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                                    <div
-                                        className="absolute right-3 top-3 flex h-9 w-9 -translate-y-2 items-center justify-center rounded-full bg-white/90 text-gold-700 opacity-0 shadow-soft transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
-                                        style={{ transform: 'translateZ(40px)' }}
-                                    >
-                                        <ArrowUpRight weight="bold" />
+            <div className="mt-12 grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {documentations.map((d, i) => {
+                    const range = formatDateRange(d.started_at, d.ended_at, locale, t('modal.present'));
+                    return (
+                        <motion.article
+                            key={d.id}
+                            className="group h-full"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: '-12% 0px' }}
+                            transition={{ delay: i * 0.06, duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }}
+                        >
+                            <TiltCard className="h-full">
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenItem(d)}
+                                    aria-label={t('modal.viewDetails')}
+                                    className="flex h-full w-full flex-col overflow-hidden rounded-3xl bg-white/95 text-left shadow-soft ring-1 ring-gold-100/70 transition-shadow duration-500 group-hover:shadow-cute"
+                                >
+                                    <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden">
+                                        <LazyImage
+                                            src={d.image_url}
+                                            alt={pickTranslation(d.title, locale)}
+                                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                                        {range && (
+                                            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-gold-700 shadow-soft ring-1 ring-gold-100 backdrop-blur">
+                                                <CalendarBlank weight="duotone" size={12} />
+                                                {range}
+                                            </span>
+                                        )}
                                     </div>
-                                </div>
-                                <div className="space-y-1.5 p-5" style={{ transform: 'translateZ(20px)' }}>
-                                    <h3 className="font-semibold text-stone-800">
-                                        {pickTranslation(d.title, locale)}
-                                    </h3>
-                                    <p className="text-sm leading-relaxed text-stone-500">
-                                        {pickTranslation(d.description, locale)}
-                                    </p>
-                                </div>
-                            </div>
-                        </TiltCard>
-                    </motion.article>
-                ))}
+                                    <div
+                                        className="flex flex-1 flex-col gap-1.5 p-5"
+                                        style={{ transform: 'translateZ(20px)' }}
+                                    >
+                                        <h3 className="font-semibold text-stone-800">
+                                            {pickTranslation(d.title, locale)}
+                                        </h3>
+                                        <p className="line-clamp-3 text-sm leading-relaxed text-stone-500">
+                                            {pickTranslation(d.description, locale)}
+                                        </p>
+                                    </div>
+                                </button>
+                            </TiltCard>
+                        </motion.article>
+                    );
+                })}
             </div>
+
+            <DocumentationModal item={openItem} locale={locale} onClose={() => setOpenItem(null)} />
         </section>
     );
 }

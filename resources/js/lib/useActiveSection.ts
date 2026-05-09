@@ -1,46 +1,51 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-export function useActiveSection(ids: string[], offset = 96): string {
+export function useActiveSection(
+    ids: string[],
+    offset = 96,
+): [string, (id: string) => void] {
     const [active, setActive] = useState<string>(ids[0] ?? '');
+    const lockRef = useRef<number>(0);
+
+    const setActiveExplicit = useCallback((id: string) => {
+        setActive(id);
+        lockRef.current = Date.now() + 1200;
+    }, []);
 
     useEffect(() => {
         if (typeof window === 'undefined' || ids.length === 0) return;
-
-        const sections = ids
+        const elements = ids
             .map((id) => document.getElementById(id))
             .filter((el): el is HTMLElement => !!el);
+        if (elements.length === 0) return;
 
-        if (sections.length === 0) return;
-
-        const compute = () => {
-            const scrollY = window.scrollY + offset + 1;
-            let current = sections[0].id;
-            for (const sec of sections) {
-                if (sec.offsetTop <= scrollY) {
-                    current = sec.id;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (Date.now() < lockRef.current) return;
+                const visible = entries
+                    .filter((e) => e.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+                if (visible[0]) {
+                    setActive(visible[0].target.id);
+                    return;
                 }
-            }
-            // pin last section if scrolled to bottom
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 4) {
-                current = sections[sections.length - 1].id;
-            }
-            setActive((prev) => (prev === current ? prev : current));
-        };
+                // nothing intersecting in the band — pick the closest above viewport top
+                const top = window.scrollY + offset + 1;
+                let closest = elements[0].id;
+                for (const el of elements) {
+                    if (el.offsetTop <= top) closest = el.id;
+                }
+                setActive(closest);
+            },
+            {
+                rootMargin: `-${offset}px 0px -55% 0px`,
+                threshold: [0, 0.2, 0.4, 0.6, 0.8, 1],
+            },
+        );
 
-        compute();
-        let raf = 0;
-        const onScroll = () => {
-            cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(compute);
-        };
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll);
-        return () => {
-            cancelAnimationFrame(raf);
-            window.removeEventListener('scroll', onScroll);
-            window.removeEventListener('resize', onScroll);
-        };
+        elements.forEach((el) => observer.observe(el));
+        return () => observer.disconnect();
     }, [ids, offset]);
 
-    return active;
+    return [active, setActiveExplicit];
 }

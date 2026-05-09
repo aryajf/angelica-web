@@ -28,8 +28,8 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => ['en' => 'Angelica', 'id' => 'Angelica'],
                 'profession' => [
-                    'en' => 'Creative Storyteller & Brand Designer',
-                    'id' => 'Pencerita Kreatif & Desainer Brand',
+                    'en' => 'Customer Service Officer & Brand Designer',
+                    'id' => 'Petugas Pelayanan Pelanggan & Desainer Brand',
                 ],
                 'description' => [
                     'en' => 'Hi! I craft warm, golden visual stories that make small brands shine — from cozy cafés to playful start-ups.',
@@ -39,8 +39,8 @@ class DatabaseSeeder extends Seeder
                 'instagram_url' => 'https://instagram.com/angelica',
                 'avatar_url' => null,
                 'cv_url' => null,
-                'seo_title_en' => 'Angelica · Creative Storyteller',
-                'seo_title_id' => 'Angelica · Pencerita Kreatif',
+                'seo_title_en' => 'Angelica · Customer Service Officer',
+                'seo_title_id' => 'Angelica · Petugas Pelayanan Pelanggan',
                 'seo_description_en' => 'Personal portfolio of Angelica — bilingual brand storytelling, photography and design.',
                 'seo_description_id' => 'Portofolio personal Angelica — penceritaan brand dwibahasa, fotografi, dan desain.',
             ],
@@ -55,6 +55,8 @@ class DatabaseSeeder extends Seeder
                         'en' => 'A photo set for a neighbourhood roastery, warmth-first.',
                         'id' => 'Sesi foto untuk roastery lokal, hangat dan jujur.',
                     ],
+                    'started_at' => '2024-03-01',
+                    'ended_at' => '2024-08-01',
                 ],
                 [
                     'image_url' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=70',
@@ -63,6 +65,8 @@ class DatabaseSeeder extends Seeder
                         'en' => 'Editorial styling that feels like a quiet morning.',
                         'id' => 'Penataan editorial yang terasa seperti pagi yang tenang.',
                     ],
+                    'started_at' => '2024-09-01',
+                    'ended_at' => '2025-02-01',
                 ],
                 [
                     'image_url' => 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=900&q=70',
@@ -71,6 +75,8 @@ class DatabaseSeeder extends Seeder
                         'en' => 'Documentary film & photography for a golden afternoon.',
                         'id' => 'Film dokumenter & fotografi untuk sore keemasan.',
                     ],
+                    'started_at' => '2025-05-01',
+                    'ended_at' => '2025-06-01',
                 ],
                 [
                     'image_url' => 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=70',
@@ -79,6 +85,8 @@ class DatabaseSeeder extends Seeder
                         'en' => 'Logo, packaging and tone for a slow-fashion label.',
                         'id' => 'Logo, kemasan, dan tone untuk label slow fashion.',
                     ],
+                    'started_at' => '2025-11-01',
+                    'ended_at' => null,
                 ],
             ];
             foreach ($samples as $i => $sample) {

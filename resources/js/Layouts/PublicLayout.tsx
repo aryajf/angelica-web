@@ -9,7 +9,7 @@ import {
     User,
 } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
-import { type PropsWithChildren } from 'react';
+import { type MouseEvent, type PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import SeoHead from '@/Components/SeoHead';
@@ -27,17 +27,28 @@ export default function PublicLayout({ children }: PropsWithChildren) {
     const { props } = usePage<SharedProps>();
     const isAuthed = !!props.auth.user;
 
-    const navItems: NavItem[] = [
-        { id: 'home', label: t('nav.home'), icon: HouseSimple },
-        { id: 'work', label: t('nav.work'), icon: Images },
-        { id: 'about', label: t('nav.about'), icon: Sparkle },
-        { id: 'testimonials', label: t('nav.testimonials'), icon: ChatTeardropDots },
-    ];
-
-    const active = useActiveSection(
-        navItems.map((n) => n.id),
-        96,
+    const navItems: NavItem[] = useMemo(
+        () => [
+            { id: 'home', label: t('nav.home'), icon: HouseSimple },
+            { id: 'work', label: t('nav.work'), icon: Images },
+            { id: 'about', label: t('nav.about'), icon: Sparkle },
+            { id: 'testimonials', label: t('nav.testimonials'), icon: ChatTeardropDots },
+        ],
+        [t],
     );
+
+    const ids = useMemo(() => navItems.map((n) => n.id), [navItems]);
+    const [active, setActive] = useActiveSection(ids, 96);
+
+    const onNavClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
+        e.preventDefault();
+        const el = document.getElementById(id);
+        if (!el) return;
+        setActive(id);
+        const top = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: 'smooth' });
+        history.replaceState(null, '', `#${id}`);
+    };
 
     return (
         <div className="min-h-screen pb-24 md:pb-0">
@@ -45,12 +56,16 @@ export default function PublicLayout({ children }: PropsWithChildren) {
 
             <header className="sticky top-0 z-40 hidden border-b border-gold-100/40 bg-cream-50/70 backdrop-blur-xl md:block">
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-                    <Link href="/" className="group flex items-center gap-2 font-display text-lg font-bold">
+                    <a
+                        href="#home"
+                        onClick={(e) => onNavClick(e, 'home')}
+                        className="group flex items-center gap-2 font-display text-lg font-bold"
+                    >
                         <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-gradient-to-br from-gold-300 to-gold-500 text-white shadow-cute transition-transform group-hover:rotate-12">
                             <Sparkle weight="fill" />
                         </span>
                         <span className="text-shimmer">Angelica</span>
-                    </Link>
+                    </a>
                     <nav className="relative flex items-center gap-1 rounded-full bg-white/60 p-1 ring-1 ring-gold-100 backdrop-blur">
                         {navItems.map(({ id, label }) => {
                             const isActive = active === id;
@@ -58,6 +73,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                 <a
                                     key={id}
                                     href={`#${id}`}
+                                    onClick={(e) => onNavClick(e, id)}
                                     aria-current={isActive ? 'true' : undefined}
                                     className={`relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                                         isActive ? 'text-gold-800' : 'text-stone-500 hover:text-gold-700'
@@ -91,12 +107,16 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             </header>
 
             <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gold-100/40 bg-cream-50/80 px-5 py-3 backdrop-blur-xl md:hidden">
-                <Link href="/" className="flex items-center gap-2 font-display text-base font-bold text-gold-700">
+                <a
+                    href="#home"
+                    onClick={(e) => onNavClick(e, 'home')}
+                    className="flex items-center gap-2 font-display text-base font-bold text-gold-700"
+                >
                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br from-gold-300 to-gold-500 text-white shadow-soft">
                         <Sparkle weight="fill" />
                     </span>
                     <span className="text-shimmer">Angelica</span>
-                </Link>
+                </a>
                 <LanguageSwitcher compact />
             </header>
 
@@ -118,6 +138,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             <li key={id} className="flex">
                                 <a
                                     href={`#${id}`}
+                                    onClick={(e) => onNavClick(e, id)}
                                     aria-current={isActive ? 'true' : undefined}
                                     className="relative flex w-full flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 text-[10px] font-semibold transition"
                                 >

@@ -29,7 +29,7 @@ class Hero extends Model
     {
         return static::query()->firstOrCreate([], [
             'name' => ['en' => 'Angelica', 'id' => 'Angelica'],
-            'profession' => ['en' => 'Creative Storyteller', 'id' => 'Pencerita Kreatif'],
+            'profession' => ['en' => 'Customer Service Officer', 'id' => 'Petugas Pelayanan Pelanggan'],
             'description' => [
                 'en' => 'Crafting joyful brand stories with a soft, golden touch.',
                 'id' => 'Merangkai cerita brand yang ceria dengan sentuhan emas yang lembut.',

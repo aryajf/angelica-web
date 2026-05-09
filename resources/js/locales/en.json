@@ -1,7 +1,7 @@
 {
     "nav": {
         "home": "Home",
-        "work": "Work",
+        "work": "Experience",
         "about": "About",
         "testimonials": "Testimonials",
         "contact": "Contact",
@@ -15,9 +15,17 @@
         "downloadCv": "Download CV",
         "cvUnavailable": "CV will be available soon"
     },
+    "modal": {
+        "close": "Close",
+        "present": "Present",
+        "viewDetails": "View details",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "endDateHint": "Leave empty if ongoing"
+    },
     "sections": {
         "documentation": {
-            "eyebrow": "Documentation",
+            "eyebrow": "Experience",
             "title": "A little gallery of golden moments",
             "subtitle": "A handful of recent stories I had the joy to capture and craft."
         },
@@ -33,7 +41,7 @@
     },
     "footer": {
         "rights": "All rights reserved.",
-        "madeWith": "Made with love & sunlight."
+        "madeWith": "Made with love & positive energy."
     },
     "language": {
         "label": "Language",

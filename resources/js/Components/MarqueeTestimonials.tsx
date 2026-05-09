@@ -16,7 +16,6 @@ export default function MarqueeTestimonials({
     const reduce = useReducedMotion();
     if (testimonials.length === 0) return null;
 
-    // duplicate enough to cover wide screens
     const loop = [...testimonials, ...testimonials, ...testimonials, ...testimonials];
 
     return (
@@ -48,23 +47,18 @@ export default function MarqueeTestimonials({
                 />
 
                 <motion.div
-                    className="flex w-max gap-5 will-change-transform"
+                    className="flex w-max items-stretch gap-5 will-change-transform"
                     animate={reduce ? undefined : { x: ['0%', '-50%'] }}
                     transition={
                         reduce
                             ? undefined
-                            : {
-                                  duration: 38,
-                                  ease: 'linear',
-                                  repeat: Infinity,
-                              }
+                            : { duration: 38, ease: 'linear', repeat: Infinity }
                     }
-                    whileHover={reduce ? undefined : { transition: { duration: 0 } }}
                 >
                     {loop.map((tItem, idx) => (
                         <motion.article
                             key={`${tItem.id}-${idx}`}
-                            className="w-[320px] shrink-0 rounded-3xl bg-white/95 p-6 shadow-soft ring-1 ring-gold-100/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-cute"
+                            className="flex h-54 w-[320px] shrink-0 flex-col rounded-3xl bg-white/95 p-6 shadow-soft ring-1 ring-gold-100/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-cute"
                             aria-hidden={idx >= testimonials.length}
                         >
                             <div className="flex items-center justify-between">
@@ -75,7 +69,7 @@ export default function MarqueeTestimonials({
                                     ))}
                                 </div>
                             </div>
-                            <p className="mt-3 text-sm leading-relaxed text-stone-600">
+                            <p className="mt-3 line-clamp-5 flex-1 text-sm leading-relaxed text-stone-600">
                                 {pickTranslation(tItem.message, locale)}
                             </p>
                             <div className="mt-5 flex items-center gap-3">
@@ -91,10 +85,10 @@ export default function MarqueeTestimonials({
                                         {tItem.client_name.charAt(0)}
                                     </div>
                                 )}
-                                <div>
-                                    <p className="text-sm font-semibold text-stone-800">{tItem.client_name}</p>
+                                <div className="min-w-0">
+                                    <p className="truncate text-sm font-semibold text-stone-800">{tItem.client_name}</p>
                                     {tItem.client_role && (
-                                        <p className="text-xs text-stone-500">{tItem.client_role}</p>
+                                        <p className="truncate text-xs text-stone-500">{tItem.client_role}</p>
                                     )}
                                 </div>
                             </div>

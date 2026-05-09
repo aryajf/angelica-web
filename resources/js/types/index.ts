@@ -15,8 +15,11 @@ export interface Hero {
 export interface Documentation {
     id: number;
     image_url: string;
+    image_urls: string[];
     title: Translatable;
     description: Translatable;
+    started_at: string | null;
+    ended_at: string | null;
 }
 
 export interface Feature {

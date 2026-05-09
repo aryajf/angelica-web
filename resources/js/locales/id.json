@@ -1,7 +1,7 @@
 {
     "nav": {
         "home": "Beranda",
-        "work": "Karya",
+        "work": "Pengalaman",
         "about": "Tentang",
         "testimonials": "Testimoni",
         "contact": "Kontak",
@@ -15,9 +15,17 @@
         "downloadCv": "Unduh CV",
         "cvUnavailable": "CV akan tersedia segera"
     },
+    "modal": {
+        "close": "Tutup",
+        "present": "Sekarang",
+        "viewDetails": "Lihat detail",
+        "startDate": "Tanggal mulai",
+        "endDate": "Tanggal selesai",
+        "endDateHint": "Kosongkan jika masih berjalan"
+    },
     "sections": {
         "documentation": {
-            "eyebrow": "Dokumentasi",
+            "eyebrow": "Pengalaman",
             "title": "Galeri kecil momen keemasan",
             "subtitle": "Beberapa cerita terbaru yang aku kurasi dan abadikan."
         },
@@ -33,7 +41,7 @@
     },
     "footer": {
         "rights": "Hak cipta dilindungi.",
-        "madeWith": "Dibuat dengan cinta & cahaya pagi."
+        "madeWith": "Dibuat dengan cinta & energi positif."
     },
     "language": {
         "label": "Bahasa",

@@ -27,12 +27,15 @@ class PageController extends Controller
                 'email' => $hero->email,
                 'instagram_url' => $hero->instagram_url,
             ],
-            'documentations' => Documentation::query()->orderBy('order')->get()
+            'documentations' => Documentation::query()->orderBy('order')->with('images')->get()
                 ->map(fn (Documentation $d) => [
                     'id' => $d->id,
                     'image_url' => $d->image_url,
+                    'image_urls' => $d->images->pluck('image_url')->values()->toArray(),
                     'title' => $d->getTranslations('title'),
                     'description' => $d->getTranslations('description'),
+                    'started_at' => optional($d->started_at)->toDateString(),
+                    'ended_at' => optional($d->ended_at)->toDateString(),
                 ]),
             'features' => Feature::query()->orderBy('order')->get()
                 ->map(fn (Feature $f) => [
