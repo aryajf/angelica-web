@@ -1,0 +1,86 @@
+{
+    "nav": {
+        "home": "Home",
+        "work": "Work",
+        "about": "About",
+        "testimonials": "Testimonials",
+        "contact": "Contact",
+        "admin": "Admin",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "hero": {
+        "emailMe": "Email Me",
+        "instagram": "Instagram",
+        "downloadCv": "Download CV",
+        "cvUnavailable": "CV will be available soon"
+    },
+    "sections": {
+        "documentation": {
+            "eyebrow": "Documentation",
+            "title": "A little gallery of golden moments",
+            "subtitle": "A handful of recent stories I had the joy to capture and craft."
+        },
+        "whyHire": {
+            "eyebrow": "Why hire me",
+            "title": "Tiny, thoughtful reasons",
+            "subtitle": "Soft on the eyes. Honest in the work."
+        },
+        "testimonials": {
+            "eyebrow": "What they say",
+            "title": "Kind words from kind people"
+        }
+    },
+    "footer": {
+        "rights": "All rights reserved.",
+        "madeWith": "Made with love & sunlight."
+    },
+    "language": {
+        "label": "Language",
+        "english": "English",
+        "indonesian": "Bahasa Indonesia"
+    },
+    "admin": {
+        "dashboard": "Dashboard",
+        "hero": "Hero",
+        "documentations": "Documentations",
+        "features": "Why hire me",
+        "testimonials": "Testimonials",
+        "profile": "Profile",
+        "logout": "Logout",
+        "save": "Save changes",
+        "create": "Create new",
+        "delete": "Delete",
+        "edit": "Edit",
+        "back": "Back",
+        "english": "English",
+        "indonesian": "Indonesian",
+        "title": "Title",
+        "description": "Description",
+        "image": "Image",
+        "order": "Order",
+        "icon": "Icon",
+        "name": "Name",
+        "role": "Role",
+        "message": "Message",
+        "avatar": "Avatar",
+        "removeAvatar": "Remove avatar",
+        "removeCv": "Remove CV",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "updatePassword": "Update password",
+        "uploadCv": "Upload CV (PDF)",
+        "uploadAvatar": "Upload avatar",
+        "uploadImage": "Upload image",
+        "currentFile": "Current file",
+        "deleteConfirm": "Are you sure you want to delete this?"
+    },
+    "auth": {
+        "title": "Welcome back",
+        "subtitle": "Sign in to manage your portfolio.",
+        "username": "Username",
+        "password": "Password",
+        "submit": "Sign in"
+    }
+}

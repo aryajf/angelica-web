@@ -1,0 +1,163 @@
+@import url('https://fonts.bunny.net/css?family=quicksand:300,400,500,600,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-gold-50: 255 253 242;
+    --color-gold-100: 254 249 195;
+    --color-gold-300: 253 224 71;
+    --color-gold-500: 234 179 8;
+    --color-gold-600: 202 138 4;
+    --color-gold-700: 161 98 7;
+    --color-cream: 255 250 240;
+    --color-ink: 31 31 36;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 5rem;
+        -webkit-font-smoothing: antialiased;
+    }
+    body {
+        @apply bg-cream-50 text-stone-700 font-sans;
+        background-image:
+            radial-gradient(60rem 60rem at 110% -10%, rgba(250, 204, 21, 0.16), transparent 60%),
+            radial-gradient(45rem 45rem at -10% 30%, rgba(255, 234, 198, 0.55), transparent 55%),
+            radial-gradient(30rem 30rem at 50% 110%, rgba(254, 240, 138, 0.4), transparent 55%);
+        background-attachment: fixed;
+    }
+    h1, h2, h3, h4 {
+        @apply font-display tracking-tight text-stone-800;
+    }
+    :focus-visible {
+        @apply outline-none ring-2 ring-gold-400 ring-offset-2 ring-offset-cream-50 rounded-md;
+    }
+    section[id] {
+        scroll-margin-top: 5rem;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-gold-400 to-gold-500 px-5 py-2.5 text-sm font-semibold text-white shadow-cute transition-all duration-300 hover:from-gold-500 hover:to-gold-600 hover:-translate-y-0.5 active:scale-[0.97];
+    }
+    .btn-ghost {
+        @apply inline-flex items-center gap-2 rounded-full border border-gold-200 bg-white/70 px-5 py-2.5 text-sm font-semibold text-gold-700 backdrop-blur transition-all duration-300 hover:bg-gold-50 hover:-translate-y-0.5;
+    }
+    .card {
+        @apply rounded-3xl bg-white/90 p-6 shadow-soft ring-1 ring-gold-100/70 backdrop-blur;
+    }
+    .pill {
+        @apply inline-flex items-center gap-1.5 rounded-full bg-gold-50 px-3 py-1 text-xs font-medium text-gold-700 ring-1 ring-gold-100;
+    }
+    .input {
+        @apply w-full rounded-2xl border-gold-200 bg-white/80 text-sm text-stone-700 shadow-sm transition focus:border-gold-400 focus:ring-gold-300;
+    }
+    .label {
+        @apply block text-xs font-semibold uppercase tracking-wider text-stone-500;
+    }
+    .glass {
+        @apply rounded-3xl bg-white/60 backdrop-blur-xl ring-1 ring-white/60 shadow-cute;
+    }
+    .tilt-3d {
+        transform-style: preserve-3d;
+        perspective: 900px;
+    }
+}
+
+@keyframes marquee-x {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track {
+    width: max-content;
+    display: flex;
+    gap: 1.25rem;
+    animation: marquee-x 38s linear infinite;
+    will-change: transform;
+}
+.marquee-pause:hover .marquee-track {
+    animation-play-state: paused;
+}
+
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-12px) rotate(2deg); }
+}
+@keyframes float-slower {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(14px) rotate(-3deg); }
+}
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes blob {
+    0%, 100% { border-radius: 64% 36% 55% 45% / 50% 60% 40% 50%; }
+    33%      { border-radius: 36% 64% 40% 60% / 70% 30% 70% 30%; }
+    66%      { border-radius: 50% 50% 64% 36% / 36% 64% 36% 64%; }
+}
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+@keyframes gradient-pan {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+}
+
+.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+.animate-float-slower { animation: float-slower 9s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 18s linear infinite; }
+.animate-blob { animation: blob 12s ease-in-out infinite; }
+.animate-gradient-pan {
+    background-size: 200% 200%;
+    animation: gradient-pan 12s ease infinite;
+}
+
+.text-shimmer {
+    background-image: linear-gradient(
+        90deg,
+        rgb(202 138 4) 0%,
+        rgb(250 204 21) 35%,
+        rgb(254 240 138) 50%,
+        rgb(250 204 21) 65%,
+        rgb(202 138 4) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 5s linear infinite;
+}
+
+.tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 400ms cubic-bezier(.22,.61,.36,1);
+}
+.tilt-card-inner {
+    transform: translateZ(0);
+    transition: transform 400ms cubic-bezier(.22,.61,.36,1);
+}
+.tilt-card:hover {
+    transform: rotateX(6deg) rotateY(-6deg) translateZ(8px);
+}
+.tilt-card:hover .tilt-card-inner {
+    transform: translateZ(40px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee-track,
+    .animate-float-slow,
+    .animate-float-slower,
+    .animate-spin-slow,
+    .animate-blob,
+    .animate-gradient-pan,
+    .text-shimmer {
+        animation: none !important;
+    }
+    .tilt-card:hover { transform: none; }
+}

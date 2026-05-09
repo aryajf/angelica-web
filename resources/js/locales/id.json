@@ -1,0 +1,86 @@
+{
+    "nav": {
+        "home": "Beranda",
+        "work": "Karya",
+        "about": "Tentang",
+        "testimonials": "Testimoni",
+        "contact": "Kontak",
+        "admin": "Admin",
+        "login": "Masuk",
+        "logout": "Keluar"
+    },
+    "hero": {
+        "emailMe": "Email Saya",
+        "instagram": "Instagram",
+        "downloadCv": "Unduh CV",
+        "cvUnavailable": "CV akan tersedia segera"
+    },
+    "sections": {
+        "documentation": {
+            "eyebrow": "Dokumentasi",
+            "title": "Galeri kecil momen keemasan",
+            "subtitle": "Beberapa cerita terbaru yang aku kurasi dan abadikan."
+        },
+        "whyHire": {
+            "eyebrow": "Kenapa memilih saya",
+            "title": "Alasan kecil yang penuh perhatian",
+            "subtitle": "Lembut di mata. Jujur dalam karya."
+        },
+        "testimonials": {
+            "eyebrow": "Apa kata mereka",
+            "title": "Kata-kata manis dari orang-orang baik"
+        }
+    },
+    "footer": {
+        "rights": "Hak cipta dilindungi.",
+        "madeWith": "Dibuat dengan cinta & cahaya pagi."
+    },
+    "language": {
+        "label": "Bahasa",
+        "english": "English",
+        "indonesian": "Bahasa Indonesia"
+    },
+    "admin": {
+        "dashboard": "Dasbor",
+        "hero": "Hero",
+        "documentations": "Dokumentasi",
+        "features": "Kenapa Memilih Saya",
+        "testimonials": "Testimoni",
+        "profile": "Profil",
+        "logout": "Keluar",
+        "save": "Simpan perubahan",
+        "create": "Buat baru",
+        "delete": "Hapus",
+        "edit": "Sunting",
+        "back": "Kembali",
+        "english": "Inggris",
+        "indonesian": "Indonesia",
+        "title": "Judul",
+        "description": "Deskripsi",
+        "image": "Gambar",
+        "order": "Urutan",
+        "icon": "Ikon",
+        "name": "Nama",
+        "role": "Peran",
+        "message": "Pesan",
+        "avatar": "Avatar",
+        "removeAvatar": "Hapus avatar",
+        "removeCv": "Hapus CV",
+        "currentPassword": "Kata sandi saat ini",
+        "newPassword": "Kata sandi baru",
+        "confirmPassword": "Konfirmasi kata sandi baru",
+        "updatePassword": "Perbarui kata sandi",
+        "uploadCv": "Unggah CV (PDF)",
+        "uploadAvatar": "Unggah avatar",
+        "uploadImage": "Unggah gambar",
+        "currentFile": "Berkas saat ini",
+        "deleteConfirm": "Yakin ingin menghapus item ini?"
+    },
+    "auth": {
+        "title": "Selamat datang kembali",
+        "subtitle": "Masuk untuk mengelola portofoliomu.",
+        "username": "Nama pengguna",
+        "password": "Kata sandi",
+        "submit": "Masuk"
+    }
+}
