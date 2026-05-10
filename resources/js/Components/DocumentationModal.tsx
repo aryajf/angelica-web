@@ -1,42 +1,102 @@
-import { CalendarBlank, CaretLeft, CaretRight, X } from '@phosphor-icons/react';
+import { CalendarBlank, CaretLeft, CaretRight, Play, X } from '@phosphor-icons/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDateRange, pickTranslation } from '@/lib/utils';
-import type { Documentation, Locale } from '@/types';
+import type { Documentation, Locale, MediaItem } from '@/types';
 
 interface Props {
     item: Documentation | null;
+    items?: Documentation[];
     locale: Locale;
     onClose: () => void;
+    onNavigate?: (item: Documentation) => void;
 }
 
-export default function DocumentationModal({ item, locale, onClose }: Props) {
+/** Determine if a MediaItem is a video type */
+function isVideo(m: MediaItem): boolean {
+    return m.type === 'video' || m.type === 'gdrive_video';
+}
+
+/** Determine if a MediaItem is a Google Drive embed */
+function isGdrive(m: MediaItem): boolean {
+    return m.type === 'gdrive_image' || m.type === 'gdrive_video';
+}
+
+/** Build legacy MediaItem[] from old image_urls fallback */
+function buildMedia(item: Documentation): MediaItem[] {
+    if (item.media?.length) return item.media;
+    const urls = item.image_urls?.length ? item.image_urls : [item.image_url];
+    return urls.map((url) => ({ url, type: 'image' as const }));
+}
+
+export default function DocumentationModal({ item, items = [], locale, onClose, onNavigate }: Props) {
     const { t } = useTranslation();
     const [currentIndex, setCurrentIndex] = useState(0);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
-    const images = item?.image_urls?.length ? item.image_urls : item ? [item.image_url] : [];
+    const media = item ? buildMedia(item) : [];
+
+    // Current record's position in the full list
+    const recordIndex = item ? items.findIndex((d) => d.id === item.id) : -1;
 
     const goTo = useCallback(
         (index: number) => {
-            setCurrentIndex((images.length + index) % images.length);
+            setCurrentIndex((media.length + index) % media.length);
         },
-        [images.length],
+        [media.length],
     );
 
-    const prev = useCallback(() => goTo(currentIndex - 1), [goTo, currentIndex]);
-    const next = useCallback(() => goTo(currentIndex + 1), [goTo, currentIndex]);
+    // Navigate to previous record in the list
+    const goToPrevRecord = useCallback(() => {
+        if (recordIndex > 0 && onNavigate) {
+            onNavigate(items[recordIndex - 1]);
+        }
+    }, [recordIndex, items, onNavigate]);
+
+    // Navigate to next record in the list
+    const goToNextRecord = useCallback(() => {
+        if (recordIndex >= 0 && recordIndex < items.length - 1 && onNavigate) {
+            onNavigate(items[recordIndex + 1]);
+        }
+    }, [recordIndex, items, onNavigate]);
+
+    // Media-level nav with record boundary overflow
+    const handlePrevious = useCallback(() => {
+        setCurrentIndex((i) => {
+            if (i > 0) return i - 1;
+            // At first media item — jump to previous record
+            goToPrevRecord();
+            return i;
+        });
+    }, [goToPrevRecord]);
+
+    const handleNext = useCallback(() => {
+        setCurrentIndex((i) => {
+            if (i < media.length - 1) return i + 1;
+            // At last media item — jump to next record
+            goToNextRecord();
+            return i;
+        });
+    }, [media.length, goToNextRecord]);
 
     useEffect(() => {
         setCurrentIndex(0);
     }, [item?.id]);
 
+    // Pause video when sliding away
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.pause();
+        }
+    }, [currentIndex]);
+
     useEffect(() => {
         if (!item) return;
         const onKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
-            if (e.key === 'ArrowLeft') prev();
-            if (e.key === 'ArrowRight') next();
+            if (e.key === 'ArrowLeft') handlePrevious();
+            if (e.key === 'ArrowRight') handleNext();
         };
         const previous = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
@@ -45,7 +105,9 @@ export default function DocumentationModal({ item, locale, onClose }: Props) {
             document.body.style.overflow = previous;
             window.removeEventListener('keydown', onKey);
         };
-    }, [item, onClose, prev, next]);
+    }, [item, onClose, handlePrevious, handleNext]);
+
+    const currentMedia = media[currentIndex] ?? null;
 
     return (
         <AnimatePresence>
@@ -89,39 +151,77 @@ export default function DocumentationModal({ item, locale, onClose }: Props) {
                         exit={{ opacity: 0, scale: 0.96, y: 16 }}
                         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                     >
-                        {/* image carousel — Instagram-style: full image on dark bg */}
+                        {/* media carousel */}
                         <div className="relative aspect-[4/5] w-full shrink-0 overflow-hidden bg-stone-950 sm:aspect-[4/3] md:aspect-auto md:h-full md:flex-[3]">
                             <AnimatePresence mode="wait">
-                                <motion.img
-                                    key={`${item.id}-${currentIndex}`}
-                                    src={images[currentIndex]}
-                                    alt={pickTranslation(item.title, locale)}
-                                    className="absolute inset-0 z-0 m-auto block h-full w-full object-contain"
-                                    initial={{ opacity: 0, x: 40 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -40 }}
-                                    transition={{ duration: 0.3, ease: [0.22, 0.61, 0.36, 1] }}
-                                />
+                                {currentMedia && (
+                                    <motion.div
+                                        key={`${item.id}-${currentIndex}`}
+                                        className="absolute inset-0 z-0 flex items-center justify-center"
+                                        initial={{ opacity: 0, x: 40 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -40 }}
+                                        transition={{ duration: 0.3, ease: [0.22, 0.61, 0.36, 1] }}
+                                    >
+                                        {isGdrive(currentMedia) ? (
+                                            /* Google Drive embed via iframe */
+                                            <iframe
+                                                src={currentMedia.url}
+                                                className="h-full w-full"
+                                                allow="autoplay; encrypted-media"
+                                                allowFullScreen
+                                                title={pickTranslation(item.title, locale)}
+                                            />
+                                        ) : isVideo(currentMedia) ? (
+                                            /* Native video — Instagram-style inline player */
+                                            <video
+                                                ref={videoRef}
+                                                src={currentMedia.url}
+                                                className="h-full w-full object-contain"
+                                                controls
+                                                playsInline
+                                                loop
+                                                preload="metadata"
+                                                poster=""
+                                            />
+                                        ) : (
+                                            /* Image */
+                                            <img
+                                                src={currentMedia.url}
+                                                alt={pickTranslation(item.title, locale)}
+                                                className="h-full w-full object-contain"
+                                            />
+                                        )}
+                                    </motion.div>
+                                )}
                             </AnimatePresence>
 
                             {/* soft glow border */}
-                            <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" aria-hidden />
+                            <div className="pointer-events-none absolute inset-0 z-10 ring-1 ring-inset ring-white/5" aria-hidden />
+
+                            {/* video badge indicator */}
+                            {currentMedia && isVideo(currentMedia) && (
+                                <div className="absolute left-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                                    <Play weight="fill" size={10} />
+                                    Video
+                                </div>
+                            )}
 
                             {/* prev / next arrows */}
-                            {images.length > 1 && (
+                            {media.length > 1 && (
                                 <>
                                     <button
                                         type="button"
-                                        onClick={prev}
-                                        aria-label="Previous image"
+                                        onClick={handlePrevious}
+                                        aria-label="Previous"
                                         className="absolute left-2.5 top-1/2 z-20 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/90 backdrop-blur-sm transition hover:bg-black/60 hover:scale-110 active:scale-95 sm:left-3 sm:h-10 sm:w-10"
                                     >
                                         <CaretLeft weight="bold" size={18} />
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={next}
-                                        aria-label="Next image"
+                                        onClick={handleNext}
+                                        aria-label="Next"
                                         className="absolute right-2.5 top-1/2 z-20 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/90 backdrop-blur-sm transition hover:bg-black/60 hover:scale-110 active:scale-95 sm:right-3 sm:h-10 sm:w-10"
                                     >
                                         <CaretRight weight="bold" size={18} />
@@ -129,12 +229,12 @@ export default function DocumentationModal({ item, locale, onClose }: Props) {
 
                                     {/* dot pagination */}
                                     <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/30 px-3 py-1.5 backdrop-blur-sm sm:bottom-4">
-                                        {images.map((_, i) => (
+                                        {media.map((m, i) => (
                                             <button
                                                 key={i}
                                                 type="button"
                                                 onClick={() => goTo(i)}
-                                                aria-label={`Go to image ${i + 1}`}
+                                                aria-label={`Go to ${isVideo(m) ? 'video' : 'image'} ${i + 1}`}
                                                 className={`h-1.5 rounded-full transition-all duration-300 ${
                                                     i === currentIndex
                                                         ? 'w-4 bg-white'

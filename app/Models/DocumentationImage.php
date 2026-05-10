@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DocumentationImage extends Model
 {
-    protected $fillable = ['documentation_id', 'image_url', 'order'];
+    protected $fillable = ['documentation_id', 'image_url', 'type', 'order'];
 
     protected $casts = [
         'order' => 'integer',

@@ -7,7 +7,7 @@
     <meta name="description" content="{{ $page['props']['seo']['description'] ?? 'Angelica Portfolio' }}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/icons/pwa-192x192.png">
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="manifest" href="/build/manifest.webmanifest">
 
     <title inertia>{{ $page['props']['seo']['title'] ?? config('app.name') }}</title>
 

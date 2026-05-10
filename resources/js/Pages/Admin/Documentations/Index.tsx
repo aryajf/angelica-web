@@ -38,7 +38,7 @@ export default function DocumentationsIndex() {
                 </Link>
             </div>
 
-            <div className="mt-6 grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid auto-rows-fr gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {props.documentations.map((d) => {
                     const range = formatDateRange(d.started_at, d.ended_at, locale, t('modal.present'));
                     return (

@@ -17,16 +17,7 @@ class DocumentationController extends Controller
     {
         return Inertia::render('Admin/Documentations/Index', [
             'documentations' => Documentation::query()->orderBy('order')->with('images')->get()
-                ->map(fn (Documentation $d) => [
-                    'id' => $d->id,
-                    'image_url' => $d->image_url,
-                    'image_urls' => $d->images->pluck('image_url')->values()->toArray(),
-                    'title' => $d->getTranslations('title'),
-                    'description' => $d->getTranslations('description'),
-                    'started_at' => optional($d->started_at)->toDateString(),
-                    'ended_at' => optional($d->ended_at)->toDateString(),
-                    'order' => $d->order,
-                ]),
+                ->map(fn (Documentation $d) => $this->serializeDocumentation($d)),
         ]);
     }
 
@@ -48,18 +39,59 @@ class DocumentationController extends Controller
         $documentation->started_at = $data['started_at'] ?? null;
         $documentation->ended_at = $data['ended_at'] ?? null;
 
-        // Use the first uploaded image as the legacy image_url
-        $firstImage = $this->storeImage($request->file('images')[0]);
-        $documentation->image_url = $firstImage;
-        $documentation->save();
+        $order = 0;
 
-        // Store all images in the documentation_images table
-        foreach ($request->file('images', []) as $i => $file) {
-            $url = $i === 0 ? $firstImage : Storage::url($file->store('documentations', 'public'));
+        // Handle file uploads
+        $files = $request->file('images', []);
+        if (! empty($files)) {
+            $firstImage = $this->storeUploadedFile($files[0]);
+            $documentation->image_url = $firstImage;
+            $documentation->save();
+
+            foreach ($files as $file) {
+                $url = $order === 0 ? $firstImage : $this->storeUploadedFile($file);
+                $type = $this->detectFileType($file->getClientOriginalName());
+                $documentation->images()->create([
+                    'image_url' => $url,
+                    'type' => $type,
+                    'order' => $order++,
+                ]);
+            }
+        } else {
+            $documentation->image_url = '';
+            $documentation->save();
+        }
+
+        // Handle Google Drive links
+        $gdriveLinks = array_filter($data['gdrive_links'] ?? []);
+        foreach ($gdriveLinks as $link) {
+            $fileId = $this->extractGdriveFileId($link);
+            if (! $fileId) {
+                continue;
+            }
+            $embedUrl = "https://drive.google.com/file/d/{$fileId}/preview";
+            $type = $this->detectGdriveType($link);
+
+            // Use first gdrive as fallback image_url if no file uploads
+            if ($documentation->image_url === '' && $type === 'gdrive_image') {
+                $documentation->image_url = "https://drive.google.com/thumbnail?id={$fileId}&sz=w800";
+                $documentation->save();
+            }
+
             $documentation->images()->create([
-                'image_url' => $url,
-                'order' => $i,
+                'image_url' => $embedUrl,
+                'type' => $type,
+                'order' => $order++,
             ]);
+        }
+
+        // Ensure image_url has a fallback
+        if ($documentation->image_url === '') {
+            $first = $documentation->images()->first();
+            if ($first) {
+                $documentation->image_url = $first->image_url;
+                $documentation->save();
+            }
         }
 
         return redirect()->route('admin.documentations.index')->with('success', 'Documentation added.');
@@ -70,16 +102,7 @@ class DocumentationController extends Controller
         $documentation->load('images');
 
         return Inertia::render('Admin/Documentations/Form', [
-            'documentation' => [
-                'id' => $documentation->id,
-                'image_url' => $documentation->image_url,
-                'image_urls' => $documentation->images->pluck('image_url')->values()->toArray(),
-                'title' => $documentation->getTranslations('title'),
-                'description' => $documentation->getTranslations('description'),
-                'started_at' => optional($documentation->started_at)->toDateString(),
-                'ended_at' => optional($documentation->ended_at)->toDateString(),
-                'order' => $documentation->order,
-            ],
+            'documentation' => $this->serializeDocumentation($documentation),
         ]);
     }
 
@@ -93,24 +116,68 @@ class DocumentationController extends Controller
         $documentation->started_at = $data['started_at'] ?? null;
         $documentation->ended_at = $data['ended_at'] ?? null;
 
-        if ($request->hasFile('images')) {
-            // Delete old images
+        $hasNewFiles = $request->hasFile('images');
+        $hasNewGdrive = ! empty(array_filter($data['gdrive_links'] ?? []));
+
+        if ($hasNewFiles || $hasNewGdrive) {
+            // Delete old media
             foreach ($documentation->images as $img) {
-                $this->deleteImage($img->image_url);
+                if (! str_contains($img->image_url, 'drive.google.com')) {
+                    $this->deleteImage($img->image_url);
+                }
             }
             $documentation->images()->delete();
-            $this->deleteImage($documentation->image_url);
 
-            $files = $request->file('images');
-            $firstUrl = Storage::url($files[0]->store('documentations', 'public'));
-            $documentation->image_url = $firstUrl;
+            if (! str_contains($documentation->image_url, 'drive.google.com')) {
+                $this->deleteImage($documentation->image_url);
+            }
 
-            foreach ($files as $i => $file) {
-                $url = $i === 0 ? $firstUrl : Storage::url($file->store('documentations', 'public'));
+            $order = 0;
+
+            // Re-upload files
+            if ($hasNewFiles) {
+                $files = $request->file('images');
+                $firstUrl = $this->storeUploadedFile($files[0]);
+                $documentation->image_url = $firstUrl;
+
+                foreach ($files as $file) {
+                    $url = $order === 0 ? $firstUrl : $this->storeUploadedFile($file);
+                    $type = $this->detectFileType($file->getClientOriginalName());
+                    $documentation->images()->create([
+                        'image_url' => $url,
+                        'type' => $type,
+                        'order' => $order++,
+                    ]);
+                }
+            }
+
+            // Re-add GDrive links
+            $gdriveLinks = array_filter($data['gdrive_links'] ?? []);
+            foreach ($gdriveLinks as $link) {
+                $fileId = $this->extractGdriveFileId($link);
+                if (! $fileId) {
+                    continue;
+                }
+                $embedUrl = "https://drive.google.com/file/d/{$fileId}/preview";
+                $type = $this->detectGdriveType($link);
+
+                if (! $hasNewFiles && $order === 0 && $type === 'gdrive_image') {
+                    $documentation->image_url = "https://drive.google.com/thumbnail?id={$fileId}&sz=w800";
+                }
+
                 $documentation->images()->create([
-                    'image_url' => $url,
-                    'order' => $i,
+                    'image_url' => $embedUrl,
+                    'type' => $type,
+                    'order' => $order++,
                 ]);
+            }
+
+            // Fallback image_url
+            if (! $hasNewFiles && $documentation->image_url === '') {
+                $first = $documentation->images()->first();
+                if ($first) {
+                    $documentation->image_url = $first->image_url;
+                }
             }
         }
 
@@ -122,16 +189,41 @@ class DocumentationController extends Controller
     public function destroy(Documentation $documentation): RedirectResponse
     {
         foreach ($documentation->images as $img) {
-            $this->deleteImage($img->image_url);
+            if (! str_contains($img->image_url, 'drive.google.com')) {
+                $this->deleteImage($img->image_url);
+            }
         }
-        $this->deleteImage($documentation->image_url);
+        if (! str_contains($documentation->image_url ?? '', 'drive.google.com')) {
+            $this->deleteImage($documentation->image_url);
+        }
         $documentation->delete();
 
         return back()->with('success', 'Documentation deleted.');
     }
 
+    private function serializeDocumentation(Documentation $documentation): array
+    {
+        return [
+            'id' => $documentation->id,
+            'image_url' => $documentation->image_url,
+            'image_urls' => $documentation->images->pluck('image_url')->values()->toArray(),
+            'media' => $documentation->images->map(fn (DocumentationImage $img) => [
+                'url' => $img->image_url,
+                'type' => $img->type,
+            ])->values()->toArray(),
+            'title' => $documentation->getTranslations('title'),
+            'description' => $documentation->getTranslations('description'),
+            'started_at' => optional($documentation->started_at)->toDateString(),
+            'ended_at' => optional($documentation->ended_at)->toDateString(),
+            'order' => $documentation->order,
+        ];
+    }
+
     private function validateData(Request $request, bool $creating): array
     {
+        $hasFiles = $request->hasFile('images');
+        $hasGdrive = ! empty(array_filter($request->input('gdrive_links', [])));
+
         return $request->validate([
             'title.en' => ['required', 'string', 'max:160'],
             'title.id' => ['required', 'string', 'max:160'],
@@ -140,16 +232,54 @@ class DocumentationController extends Controller
             'started_at' => ['nullable', 'date'],
             'ended_at' => ['nullable', 'date', 'after_or_equal:started_at'],
             'order' => ['nullable', 'integer', 'min:0'],
-            'images' => [$creating ? 'required' : 'nullable', 'array'],
-            'images.*' => ['image', 'max:4096'],
+            'images' => [$creating && ! $hasGdrive ? 'required' : 'nullable', 'array'],
+            'images.*' => ['file', 'max:20480'], // 20MB for videos
+            'gdrive_links' => ['nullable', 'array'],
+            'gdrive_links.*' => ['nullable', 'string', 'url'],
         ]);
     }
 
-    private function storeImage($file): string
+    private function storeUploadedFile($file): string
     {
         $path = $file->store('documentations', 'public');
 
         return Storage::url($path);
+    }
+
+    private function detectFileType(string $filename): string
+    {
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $videoExts = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv'];
+
+        return in_array($ext, $videoExts) ? 'video' : 'image';
+    }
+
+    private function detectGdriveType(string $link): string
+    {
+        // If the link contains hints about video, mark as gdrive_video
+        $lower = strtolower($link);
+        if (str_contains($lower, 'video') || str_contains($lower, '.mp4') || str_contains($lower, '.mov')) {
+            return 'gdrive_video';
+        }
+
+        return 'gdrive_image';
+    }
+
+    private function extractGdriveFileId(string $url): ?string
+    {
+        // Matches: /file/d/{ID}/, /open?id={ID}, id={ID}
+        if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $url, $m)) {
+            return $m[1];
+        }
+        if (preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $url, $m)) {
+            return $m[1];
+        }
+        // Direct ID paste (no URL structure)
+        if (preg_match('/^[a-zA-Z0-9_-]{20,}$/', trim($url))) {
+            return trim($url);
+        }
+
+        return null;
     }
 
     private function deleteImage(?string $url): void

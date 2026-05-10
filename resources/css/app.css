@@ -109,7 +109,7 @@
         @apply inline-flex items-center gap-1.5 rounded-full bg-gold-50 px-3 py-1 text-xs font-medium text-gold-700 ring-1 ring-gold-100;
     }
     .input {
-        @apply w-full rounded-2xl border-gold-200 bg-white/80 text-sm text-stone-700 shadow-sm transition focus:border-gold-400 focus:ring-gold-300;
+        @apply w-full rounded-xl border-gold-200 bg-white/80 text-sm text-stone-700 shadow-sm transition focus:border-gold-400 focus:ring-gold-300;
     }
     .label {
         @apply block text-xs font-semibold uppercase tracking-wider text-stone-500;

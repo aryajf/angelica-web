@@ -12,6 +12,7 @@ import { type PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import SeoHead from '@/Components/SeoHead';
+import MimiAssistant from '@/Components/admin/MimiAssistant';
 import type { SharedProps } from '@/types';
 
 export default function AdminLayout({
@@ -39,7 +40,7 @@ export default function AdminLayout({
     return (
         <div className="min-h-screen bg-cream-50">
             <SeoHead title={title ? `${title} · Admin` : 'Admin'} />
-            <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 md:px-6">
+            <div className="mx-auto flex gap-6 px-4 py-6 md:px-6">
                 <aside className="sticky top-6 hidden h-[calc(100vh-3rem)] w-64 flex-col rounded-3xl bg-white p-5 shadow-soft ring-1 ring-gold-100 md:flex">
                     <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold text-gold-700">
                         <Sparkle weight="fill" /> Angelica
@@ -95,25 +96,29 @@ export default function AdminLayout({
                 </main>
             </div>
 
-            <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md rounded-t-3xl border-t border-gold-100 bg-white/95 px-2 py-2 shadow-cute backdrop-blur md:hidden">
-                <ul className="grid grid-cols-5">
-                    {navItems.slice(0, 5).map((item) => (
+            <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-sm rounded-t-3xl border-t border-gold-100 bg-white/95 px-1 py-1.5 shadow-cute backdrop-blur md:hidden">
+                <ul className="grid grid-cols-6">
+                    {navItems.map((item) => (
                         <li key={item.href} className="flex">
                             <Link
                                 href={item.href}
-                                className={`flex w-full flex-col items-center justify-center gap-0.5 rounded-2xl py-2 text-[10px] font-semibold transition ${
+                                className={`flex w-full flex-col items-center justify-center rounded-2xl py-2 transition ${
                                     isActive(item.match)
-                                        ? 'bg-gold-50 text-gold-700'
-                                        : 'text-stone-500 hover:text-gold-700'
+                                        ? 'text-gold-700'
+                                        : 'text-stone-400 hover:text-gold-600'
                                 }`}
                             >
-                                <item.icon size={20} weight="duotone" />
-                                {item.name}
+                                <item.icon size={22} weight={isActive(item.match) ? 'fill' : 'duotone'} />
+                                {isActive(item.match) && (
+                                    <span className="mt-1 h-1 w-1 rounded-full bg-gold-500" />
+                                )}
                             </Link>
                         </li>
                     ))}
                 </ul>
             </nav>
+
+            <MimiAssistant />
         </div>
     );
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Documentation;
+use App\Models\DocumentationImage;
 use App\Models\Feature;
 use App\Models\Hero;
 use App\Models\Testimonial;
@@ -32,6 +33,10 @@ class PageController extends Controller
                     'id' => $d->id,
                     'image_url' => $d->image_url,
                     'image_urls' => $d->images->pluck('image_url')->values()->toArray(),
+                    'media' => $d->images->map(fn (DocumentationImage $img) => [
+                        'url' => $img->image_url,
+                        'type' => $img->type,
+                    ])->values()->toArray(),
                     'title' => $d->getTranslations('title'),
                     'description' => $d->getTranslations('description'),
                     'started_at' => optional($d->started_at)->toDateString(),

@@ -37,7 +37,7 @@ export default function TestimonialsIndex() {
                 </Link>
             </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
                 {props.testimonials.map((t0) => (
                     <article key={t0.id} className="card">
                         <Quotes weight="fill" className="text-gold-300" size={22} />

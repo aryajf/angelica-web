@@ -12,10 +12,18 @@ export interface Hero {
     instagram_url: string | null;
 }
 
+export type MediaType = 'image' | 'video' | 'gdrive_image' | 'gdrive_video';
+
+export interface MediaItem {
+    url: string;
+    type: MediaType;
+}
+
 export interface Documentation {
     id: number;
     image_url: string;
     image_urls: string[];
+    media: MediaItem[];
     title: Translatable;
     description: Translatable;
     started_at: string | null;

@@ -116,7 +116,13 @@ export default function Gallery({
                 })}
             </div>
 
-            <DocumentationModal item={openItem} locale={locale} onClose={() => setOpenItem(null)} />
+            <DocumentationModal
+                item={openItem}
+                items={documentations}
+                locale={locale}
+                onClose={() => setOpenItem(null)}
+                onNavigate={setOpenItem}
+            />
         </section>
     );
 }

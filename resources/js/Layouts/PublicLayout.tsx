@@ -1,12 +1,10 @@
-import { Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import {
     ChatTeardropDots,
     HouseSimple,
     type Icon,
     Images,
-    SignIn,
     Sparkle,
-    User,
 } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { type MouseEvent, type PropsWithChildren, useMemo } from 'react';
@@ -25,7 +23,6 @@ interface NavItem {
 export default function PublicLayout({ children }: PropsWithChildren) {
     const { t } = useTranslation();
     const { props } = usePage<SharedProps>();
-    const isAuthed = !!props.auth.user;
 
     const navItems: NavItem[] = useMemo(
         () => [
@@ -51,9 +48,10 @@ export default function PublicLayout({ children }: PropsWithChildren) {
     };
 
     return (
-        <div className="min-h-screen pb-24 md:pb-0">
+        <div className="min-h-screen pb-20 md:pb-0">
             <SeoHead />
 
+            {/* ── Desktop header ── */}
             <header className="sticky top-0 z-40 hidden border-b border-gold-100/40 bg-cream-50/70 backdrop-blur-xl md:block">
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
                     <a
@@ -91,21 +89,11 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             );
                         })}
                     </nav>
-                    <div className="flex items-center gap-3">
-                        <LanguageSwitcher />
-                        {isAuthed ? (
-                            <Link href={route('admin.dashboard')} className="btn-ghost">
-                                <User weight="duotone" /> {t('nav.admin')}
-                            </Link>
-                        ) : (
-                            <Link href={route('login')} className="btn-ghost">
-                                <SignIn weight="duotone" /> {t('nav.login')}
-                            </Link>
-                        )}
-                    </div>
+                    <LanguageSwitcher />
                 </div>
             </header>
 
+            {/* ── Mobile top bar ── */}
             <header className="sticky top-0 z-40 flex items-center justify-between border-b border-gold-100/40 bg-cream-50/80 px-5 py-3 backdrop-blur-xl md:hidden">
                 <a
                     href="#home"
@@ -127,47 +115,39 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                 <p className="mt-1 text-xs">{t('footer.madeWith')}</p>
             </footer>
 
+            {/* ── Mobile bottom nav — icons only, clean & minimal ── */}
             <nav
                 aria-label="Primary"
-                className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-3xl border border-gold-100 bg-white/80 px-2 py-1.5 shadow-cute backdrop-blur-2xl md:hidden"
+                className="fixed inset-x-0 bottom-0 z-50 border-t border-gold-100/60 bg-white/90 backdrop-blur-2xl md:hidden"
             >
-                <ul className="relative grid grid-cols-5">
-                    {navItems.map(({ id, label, icon: Icon }) => {
+                <ul className="mx-auto flex max-w-sm justify-around px-2 py-2">
+                    {navItems.map(({ id, icon: Icon }) => {
                         const isActive = active === id;
                         return (
-                            <li key={id} className="flex">
+                            <li key={id}>
                                 <a
                                     href={`#${id}`}
                                     onClick={(e) => onNavClick(e, id)}
                                     aria-current={isActive ? 'true' : undefined}
-                                    className="relative flex w-full flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 text-[10px] font-semibold transition"
+                                    aria-label={id}
+                                    className="relative flex h-10 w-10 items-center justify-center rounded-2xl transition"
                                 >
                                     {isActive && (
                                         <motion.span
                                             layoutId="mobileIndicator"
-                                            className="absolute inset-1 -z-0 rounded-2xl bg-gradient-to-br from-gold-100 to-gold-200 shadow-soft"
+                                            className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold-100 to-gold-200 shadow-soft"
                                             transition={{ type: 'spring', stiffness: 360, damping: 30 }}
                                         />
                                     )}
-                                    <span className={`relative ${isActive ? 'text-gold-800' : 'text-stone-500'}`}>
-                                        <Icon size={22} weight={isActive ? 'fill' : 'duotone'} />
-                                    </span>
-                                    <span className={`relative ${isActive ? 'text-gold-800' : 'text-stone-500'}`}>
-                                        {label}
-                                    </span>
+                                    <Icon
+                                        size={22}
+                                        weight={isActive ? 'fill' : 'regular'}
+                                        className={`relative ${isActive ? 'text-gold-700' : 'text-stone-400'}`}
+                                    />
                                 </a>
                             </li>
                         );
                     })}
-                    <li className="flex">
-                        <Link
-                            href={isAuthed ? route('admin.dashboard') : route('login')}
-                            className="flex w-full flex-col items-center justify-center gap-0.5 rounded-2xl py-1.5 text-[10px] font-semibold text-stone-500 transition hover:text-gold-700"
-                        >
-                            {isAuthed ? <User size={22} weight="duotone" /> : <SignIn size={22} weight="duotone" />}
-                            {isAuthed ? t('nav.admin') : t('nav.login')}
-                        </Link>
-                    </li>
                 </ul>
             </nav>
         </div>

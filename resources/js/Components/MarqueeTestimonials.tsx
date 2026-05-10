@@ -52,7 +52,7 @@ export default function MarqueeTestimonials({
                     transition={
                         reduce
                             ? undefined
-                            : { duration: 38, ease: 'linear', repeat: Infinity }
+                            : { duration: 60, ease: 'linear', repeat: Infinity }
                     }
                 >
                     {loop.map((tItem, idx) => (
