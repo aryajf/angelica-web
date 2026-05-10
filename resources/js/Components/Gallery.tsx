@@ -54,7 +54,7 @@ export default function Gallery({
     const [openItem, setOpenItem] = useState<Documentation | null>(null);
 
     return (
-        <section id="work" className="relative mx-auto max-w-6xl px-6 py-20">
+        <section id="work" className="relative mx-auto max-w-6xl px-6 pb-40">
             <Reveal className="text-center">
                 <span className="pill">{t('sections.documentation.eyebrow')}</span>
                 <h2 className="mt-3 text-3xl font-bold md:text-5xl">

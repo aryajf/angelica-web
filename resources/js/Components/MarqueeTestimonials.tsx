@@ -19,7 +19,7 @@ export default function MarqueeTestimonials({
     const loop = [...testimonials, ...testimonials, ...testimonials, ...testimonials];
 
     return (
-        <section id="testimonials" className="relative py-20">
+        <section id="testimonials" className="relative pb-40">
             <div
                 className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-full bg-gradient-to-b from-transparent via-gold-50/50 to-transparent"
                 aria-hidden

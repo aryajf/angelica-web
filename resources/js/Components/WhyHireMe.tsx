@@ -57,7 +57,7 @@ export default function WhyHireMe({ features, locale }: { features: Feature[]; l
     const Icon = resolveIcon(current.icon);
 
     return (
-        <section id="about" ref={sectionRef} className="relative mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
+        <section id="about" ref={sectionRef} className="relative mx-auto pb-20 max-w-6xl px-4 md:px-6 md:pb-40">
             <div className="pointer-events-none absolute inset-0 -z-10 rounded-[3rem] bg-gradient-to-b from-transparent via-white/40 to-transparent" aria-hidden />
 
             <Reveal className="text-center">

@@ -55,7 +55,7 @@ export default function Hero({ hero, locale }: { hero: HeroType; locale: Locale 
     };
 
     return (
-        <section id="home" className="relative overflow-hidden">
+        <section id="home" className="relative overflow-hidden pb-20">
             {/* animated mesh / glow */}
             <div className="pointer-events-none absolute inset-0 -z-10">
                 <div className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full bg-gradient-to-br from-gold-300 via-gold-200 to-cream-100 opacity-70 blur-3xl animate-blob" />

@@ -48,7 +48,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
     };
 
     return (
-        <div className="min-h-screen pb-20 md:pb-0">
+        <div className="min-h-screen pb-14 md:pb-0">
             <SeoHead />
 
             {/* ── Desktop header ── */}
